@@ -26,7 +26,7 @@ var packrMigrations = map[string]*packr.Box{
 
 // NewSQLDB creates a new SQL DB
 func NewSQLDB(cfg Config) (*pgxpool.Pool, error) {
-	config, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s?pool_max_conns=%d&pool_max_conn_lifetime=%d", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name, cfg.MaxConns, cfg.MaxConnLifetime))
+	config, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s?pool_max_conns=%d&pool_max_conn_lifetime=%s", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name, cfg.MaxConns, cfg.MaxConnLifetime))
 	if err != nil {
 		log.Errorf("Unable to parse DB config: %v\n", err)
 		return nil, err
