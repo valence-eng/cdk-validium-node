@@ -20,6 +20,7 @@ Outputs = ["stderr"]
 	Port = "5432"
 	EnableLog = false	
 	MaxConns = 200
+	MaxConnLifetime = 1h
 	[State.Batch]
 		[State.Batch.Constraints]
 		MaxTxsPerBatch = 300

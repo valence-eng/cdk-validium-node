@@ -1,5 +1,7 @@
 package db
 
+import "github.com/0xPolygonHermez/zkevm-node/config/types"
+
 // Config provide fields to configure the pool
 type Config struct {
 	// Database name
@@ -22,4 +24,6 @@ type Config struct {
 
 	// MaxConns is the maximum number of connections in the pool.
 	MaxConns int `mapstructure:"MaxConns"`
+
+	MaxConnLifetime types.Duration `mapstructure:"MaxConnLifetime"`
 }
