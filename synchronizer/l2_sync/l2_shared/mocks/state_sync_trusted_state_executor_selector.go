@@ -24,10 +24,6 @@ func (_m *stateSyncTrustedStateExecutorSelector) EXPECT() *stateSyncTrustedState
 func (_m *stateSyncTrustedStateExecutorSelector) GetForkIDInMemory(forkId uint64) *state.ForkIDInterval {
 	ret := _m.Called(forkId)
 
-	if len(ret) == 0 {
-		panic("no return value specified for GetForkIDInMemory")
-	}
-
 	var r0 *state.ForkIDInterval
 	if rf, ok := ret.Get(0).(func(uint64) *state.ForkIDInterval); ok {
 		r0 = rf(forkId)

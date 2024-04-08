@@ -47,6 +47,8 @@ const (
 
 	// EventID_NodeOOC is triggered when an OOC at node level is detected
 	EventID_NodeOOC EventID = "NODE OOC"
+	// EventID_InvalidInfoRoot is triggered when an invalid l1InfoRoot was synced
+	EventID_InvalidInfoRoot EventID = "INVALID INFOROOT"
 	// Source_Node is the source of the event
 	Source_Node Source = "node"
 
