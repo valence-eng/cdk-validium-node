@@ -606,10 +606,17 @@ func newState(ctx context.Context, c *config.Config, etherman *etherman.Client, 
 	if err != nil {
 		log.Fatal("error getting forkIDs. Error: ", err)
 	}
-	st.UpdateForkIDIntervalsInMemory(forkIDIntervals)
+
+	log.Info("Adding forkID to db and memory")
+	for _, forkID := range forkIDIntervals {
+		err = st.AddForkIDInterval(ctx, forkID, nil)
+		if err != nil {
+			log.Fatal("error adding forkID to db. Error: ", err)
+		}
+	}
 
 	currentForkID := forkIDIntervals[len(forkIDIntervals)-1].ForkId
-	log.Infof("Fork ID read from POE SC = %v", forkIDIntervals[len(forkIDIntervals)-1].ForkId)
+	log.Infof("Fork ID read from POE SC = %v", currentForkID)
 
 	return st, currentForkID
 }
@@ -763,14 +770,24 @@ func forkIDIntervals(ctx context.Context, st *state.State, etherman *etherman.Cl
 			}
 			forkIDIntervals = forkIntervals
 		} else {
-			log.Debug("Getting initial forkID")
-			forkIntervals, err := etherman.GetForks(ctx, genesisBlockNumber, genesisBlockNumber)
+			log.Debug("Getting all forkIDs")
+
+			// Get last L1 block number
+			bn, err := etherman.GetLatestBlockNumber(ctx)
+			if err != nil {
+				return []state.ForkIDInterval{}, fmt.Errorf("error getting latest block number. Error: %v", err)
+			}
+
+			// Get all forkIDs since genesis
+			forkIntervals, err := etherman.GetForks(ctx, genesisBlockNumber, bn)
 			if err != nil {
 				return []state.ForkIDInterval{}, fmt.Errorf("error getting forks. Please check the configuration. Error: %v", err)
 			} else if len(forkIntervals) == 0 {
 				return []state.ForkIDInterval{}, fmt.Errorf("error: no forkID received. It should receive at least one, please check the configuration...")
 			}
 			forkIDIntervals = forkIntervals
+
+			log.Debugf("Retrieved %d forkIDs", len(forkIDIntervals))
 		}
 	}
 	return forkIDIntervals, nil
