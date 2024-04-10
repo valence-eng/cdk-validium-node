@@ -606,14 +606,7 @@ func newState(ctx context.Context, c *config.Config, etherman *etherman.Client, 
 	if err != nil {
 		log.Fatal("error getting forkIDs. Error: ", err)
 	}
-
-	log.Info("Adding forkID to db and memory")
-	for _, forkID := range forkIDIntervals {
-		err = st.AddForkIDInterval(ctx, forkID, nil)
-		if err != nil {
-			log.Fatal("error adding forkID to db. Error: ", err)
-		}
-	}
+	st.UpdateForkIDIntervalsInMemory(forkIDIntervals)
 
 	currentForkID := forkIDIntervals[len(forkIDIntervals)-1].ForkId
 	log.Infof("Fork ID read from POE SC = %v", currentForkID)
@@ -788,6 +781,14 @@ func forkIDIntervals(ctx context.Context, st *state.State, etherman *etherman.Cl
 			forkIDIntervals = forkIntervals
 
 			log.Debugf("Retrieved %d forkIDs", len(forkIDIntervals))
+
+			log.Debug("Adding forkIDs to db and memory")
+			for _, forkID := range forkIDIntervals {
+				err = st.AddForkIDInterval(ctx, forkID, nil)
+				if err != nil {
+					log.Fatal("error adding forkID to db. Error: ", err)
+				}
+			}
 		}
 	}
 	return forkIDIntervals, nil
