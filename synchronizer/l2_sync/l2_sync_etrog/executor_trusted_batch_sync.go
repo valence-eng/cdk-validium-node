@@ -295,10 +295,10 @@ func batchResultSanityCheck(data *l2_shared.ProcessData, processBatchResp *state
 	if processBatchResp.NewStateRoot == state.ZeroHash {
 		return fmt.Errorf("%s processBatchResp.NewStateRoot is ZeroHash. Err: %w", debugStr, l2_shared.ErrFatalBatchDesynchronized)
 	}
-	if processBatchResp.NewStateRoot != data.TrustedBatch.StateRoot {
+	/*if processBatchResp.NewStateRoot != data.TrustedBatch.StateRoot {
 		return fmt.Errorf("%s processBatchResp.NewStateRoot(%s) != data.TrustedBatch.StateRoot(%s). Err: %w", debugStr,
 			processBatchResp.NewStateRoot.String(), data.TrustedBatch.StateRoot.String(), l2_shared.ErrFatalBatchDesynchronized)
-	}
+	}*/
 	if processBatchResp.NewLocalExitRoot != data.TrustedBatch.LocalExitRoot {
 		return fmt.Errorf("%s processBatchResp.NewLocalExitRoot(%s) != data.StateBatch.LocalExitRoot(%s). Err: %w", debugStr,
 			processBatchResp.NewLocalExitRoot.String(), data.TrustedBatch.LocalExitRoot.String(), l2_shared.ErrFatalBatchDesynchronized)

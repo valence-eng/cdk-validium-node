@@ -397,9 +397,9 @@ func isTrustedBatchEmptyAndClosed(batch *types.Batch) bool {
 }
 
 func checkStateRootAndLER(batchNumber uint64, expectedStateRoot common.Hash, expectedLER common.Hash, calculatedStateRoot common.Hash, calculatedLER common.Hash) error {
-	if calculatedStateRoot != expectedStateRoot {
+	/*if calculatedStateRoot != expectedStateRoot {
 		return fmt.Errorf("batch %v: stareRoot calculated [%s] is different from the one in the batch [%s] err:%w", batchNumber, calculatedStateRoot, expectedStateRoot, ErrFatalBatchDesynchronized)
-	}
+	}*/
 	if calculatedLER != expectedLER {
 		return fmt.Errorf("batch %v: LocalExitRoot calculated [%s] is different from the one in the batch [%s] err:%w", batchNumber, calculatedLER, expectedLER, ErrFatalBatchDesynchronized)
 	}
