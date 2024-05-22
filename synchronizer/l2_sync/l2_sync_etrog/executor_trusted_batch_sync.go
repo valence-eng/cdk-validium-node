@@ -74,10 +74,11 @@ func (b *SyncTrustedBatchExecutorForEtrog) NothingProcess(ctx context.Context, d
 				log.Warnf("%s PreviousStateBatch is nil. Can't reprocess", data.DebugPrefix)
 				return nil, ErrCantReprocessBatchMissingPreviousStateBatch
 			}
-		} else {
-			log.Warnf("%s StateBatch is not WIP. Can't reprocess", data.DebugPrefix)
-			return nil, ErrCriticalClosedBatchDontContainExpectedData
 		}
+		// else {
+		// 	log.Warnf("%s StateBatch is not WIP. Can't reprocess", data.DebugPrefix)
+		// 	return nil, ErrCriticalClosedBatchDontContainExpectedData
+		// }
 	}
 	res := l2_shared.NewProcessResponse()
 	if data.BatchMustBeClosed {
