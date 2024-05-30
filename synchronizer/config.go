@@ -30,6 +30,10 @@ type Config struct {
 	L1ParallelSynchronization L1ParallelSynchronizationConfig
 	// L2Synchronization Configuration for L2 synchronization
 	L2Synchronization l2_sync.Config `mapstructure:"L2Synchronization"`
+
+	// ExecuteBatchNoCountersFlag if is true then the executor will execute the batch with the flag NoCounters set
+	// this a very dangerous option, if you are not sure set to FALSE
+	ExecuteBatchNoCountersFlag bool `mapstructure:"ExecuteBatchWithNoCounters"`
 }
 
 // L1ParallelSynchronizationConfig Configuration for parallel mode (if UL1SynchronizationMode equal to 'parallel')

@@ -35,6 +35,7 @@ type ProcessingContextV2 struct {
 	GlobalExitRoot       common.Hash // GlobalExitRoot is not use for execute but use to OpenBatch (data on  DB)
 	ExecutionMode        uint64
 	ClosingReason        ClosingReason
+	NoCountersFlag       bool
 }
 
 // ProcessBatchV2 processes a batch for forkID >= ETROG
@@ -99,7 +100,8 @@ func (s *State) ProcessBatchV2(ctx context.Context, request ProcessRequest, upda
 }
 
 // ExecuteBatchV2 is used by the synchronizer to reprocess batches to compare generated state root vs stored one
-func (s *State) ExecuteBatchV2(ctx context.Context, batch Batch, L1InfoTreeRoot common.Hash, l1InfoTreeData map[uint32]L1DataV2, timestampLimit time.Time, updateMerkleTree bool, skipVerifyL1InfoRoot uint32, forcedBlockHashL1 *common.Hash, dbTx pgx.Tx) (*executor.ProcessBatchResponseV2, error) {
+func (s *State) ExecuteBatchV2(ctx context.Context, batch Batch, L1InfoTreeRoot common.Hash, l1InfoTreeData map[uint32]L1DataV2, timestampLimit time.Time,
+	updateMerkleTree bool, skipVerifyL1InfoRoot uint32, forcedBlockHashL1 *common.Hash, noCountersFlag bool, dbTx pgx.Tx) (*executor.ProcessBatchResponseV2, error) {
 	if dbTx == nil {
 		return nil, ErrDBTxNil
 	}
@@ -117,6 +119,11 @@ func (s *State) ExecuteBatchV2(ctx context.Context, batch Batch, L1InfoTreeRoot 
 		updateMT = cTrue
 	}
 
+	NoCountersMT := uint32(cFalse)
+	if noCountersFlag {
+		log.Warnf("ExecuteBatchV2: NoCountersFlag is true for batch %d", batch.BatchNumber)
+		NoCountersMT = cTrue
+	}
 	// Create Batch
 	processBatchRequest := &executor.ProcessBatchRequestV2{
 		OldBatchNum:     batch.BatchNumber - 1,
@@ -133,6 +140,7 @@ func (s *State) ExecuteBatchV2(ctx context.Context, batch Batch, L1InfoTreeRoot 
 		ContextId:            uuid.NewString(),
 		SkipVerifyL1InfoRoot: skipVerifyL1InfoRoot,
 		ExecutionMode:        executor.ExecutionMode1,
+		NoCounters:           NoCountersMT,
 	}
 
 	if forcedBlockHashL1 != nil {
@@ -219,6 +227,11 @@ func (s *State) processBatchV2(ctx context.Context, processingCtx *ProcessingCon
 	} else {
 		timestampLimitUnix = uint64(time.Now().Unix())
 	}
+	NoCountersMT := uint32(cFalse)
+	if processingCtx.NoCountersFlag {
+		log.Warnf("processBatchV2: NoCountersFlag is true for batch %d", lastBatch.BatchNumber)
+		NoCountersMT = cTrue
+	}
 	// Create Batch
 	processBatchRequest := &executor.ProcessBatchRequestV2{
 		OldBatchNum:          lastBatch.BatchNumber - 1,
@@ -234,6 +247,7 @@ func (s *State) processBatchV2(ctx context.Context, processingCtx *ProcessingCon
 		SkipVerifyL1InfoRoot: processingCtx.SkipVerifyL1InfoRoot,
 		L1InfoRoot:           processingCtx.L1InfoRoot.Bytes(),
 		ExecutionMode:        processingCtx.ExecutionMode,
+		NoCounters:           NoCountersMT,
 	}
 
 	if processingCtx.ForcedBlockHashL1 != nil {
