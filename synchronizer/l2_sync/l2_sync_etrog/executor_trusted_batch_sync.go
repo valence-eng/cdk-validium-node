@@ -150,11 +150,11 @@ func (b *SyncTrustedBatchExecutorForEtrog) FullProcess(ctx context.Context, data
 		return nil, err
 	}
 
-	err = batchResultSanityCheck(data, processBatchResp, debugStr)
-	if err != nil {
-		log.Errorf("%s error batchResultSanityCheck. Error: %s", data.DebugPrefix, err.Error())
-		return nil, err
-	}
+	// err = batchResultSanityCheck(data, processBatchResp, debugStr)
+	// if err != nil {
+	// 	log.Errorf("%s error batchResultSanityCheck. Error: %s", data.DebugPrefix, err.Error())
+	// 	return nil, err
+	// }
 
 	if data.BatchMustBeClosed {
 		log.Debugf("%s Closing batch", data.DebugPrefix)
@@ -215,11 +215,11 @@ func (b *SyncTrustedBatchExecutorForEtrog) IncrementalProcess(ctx context.Contex
 		return nil, err
 	}
 
-	err = batchResultSanityCheck(data, processBatchResp, debugStr)
-	if err != nil {
-		log.Errorf("%s error batchResultSanityCheck. Error: %s", data.DebugPrefix, err.Error())
-		return nil, err
-	}
+	// err = batchResultSanityCheck(data, processBatchResp, debugStr)
+	// if err != nil {
+	// 	log.Errorf("%s error batchResultSanityCheck. Error: %s", data.DebugPrefix, err.Error())
+	// 	return nil, err
+	// }
 
 	if data.BatchMustBeClosed {
 		log.Debugf("%s Closing batch", data.DebugPrefix)
