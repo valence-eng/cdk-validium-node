@@ -1,4 +1,4 @@
-Unit]
+[Unit]
   Description=cdk-validium-node
   StartLimitIntervalSec=500
   StartLimitBurst=5
