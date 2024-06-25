@@ -60,6 +60,10 @@ check-python:
 check-curl:
 	@which curl > /dev/null || (echo "Error: curl is not installed" && exit 1)
 
+clean:
+	env GO111MODULE=on go clean -cache
+	rm -fr build/_workspace/pkg/ $(GOBIN)/*
+
 # Targets that require the checks
 build: check-go
 lint: check-go
