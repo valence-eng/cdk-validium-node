@@ -42,8 +42,6 @@ jobs:
 
       - name: making directory structure
         run: mkdir -p packaging/deb/cdk-validium-node/usr/bin/
-      - name: creating DEBIAN directory
-        run: mkdir -p packaging/deb/cdk-validium-node/DEBIAN
       - name: copying necessary binary for amd64
         run: cp -rp dist/zkevm-node packaging/deb/cdk-validium-node/usr/bin/cdk-validium-node
       - name: create directory for service file
