@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+###############
+# Remove cdk-validium-node installs
+##############
+sudo rm -rf /lib/systemd/system/cdk-validium-node.service
+sudo deluser cdk-validium-node
+sudo systemctl daemon-reload

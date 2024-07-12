@@ -1,0 +1,12 @@
+#!/bin/bash
+# This is a postinstallation script so the service can be configured and started when requested
+#
+sudo adduser --disabled-password --disabled-login --shell /usr/sbin/nologin --quiet --system --no-create-home --home /nonexistent cdk-validium-node
+if [ -d "/opt/cdk-validium-node" ]
+then
+    echo "Directory /opt/cdk-validium-node exists."
+else
+    sudo mkdir -p /opt/cdk-validium-node
+    sudo chown -R cdk-validium-node /opt/cdk-validium-node
+fi
+sudo systemctl daemon-reload
