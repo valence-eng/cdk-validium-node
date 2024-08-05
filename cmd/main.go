@@ -193,6 +193,7 @@ func main() {
 			Action:  setDataAvailabilityProtocol,
 			Flags:   setDataAvailabilityProtocolFlags,
 		},
+		&policyCommands,
 	}
 
 	err := app.Run(os.Args)
