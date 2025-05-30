@@ -36,7 +36,7 @@ type ethermanInterface interface {
 	TrustedSequencer() (common.Address, error)
 	GetLatestBatchNumber() (uint64, error)
 	GetLatestBlockNumber(ctx context.Context) (uint64, error)
-	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
+	HeaderByNumber(ctx context.Context, number *big.Int) (*ethermanTypes.HeaderWithHash, error)
 	GetRollupInfoByBlockRange(ctx context.Context, fromBlock uint64, toBlock *uint64) ([]ethermanTypes.Block, map[common.Hash][]ethermanTypes.Order, error)
 	DepositCount(ctx context.Context, blockNumber *uint64) (*big.Int, error)
 }

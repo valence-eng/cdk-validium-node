@@ -300,7 +300,7 @@ func TestGetRealHighestBlockNumberInResponseWithLastBlockOfRange(t *testing.T) {
 				BlockNumber: 150,
 			},
 		},
-		lastBlockOfRange: ethTypes.NewBlock(&ethTypes.Header{Number: big.NewInt(200)}, nil, nil, nil, nil),
+		lastBlockOfRange: etherman.BlockWithHashFromBlock(ethTypes.NewBlock(&ethTypes.Header{Number: big.NewInt(200)}, nil, nil, nil, nil)),
 	}
 	res := rollupInfoByBlockRangeResult.getHighestBlockNumberInResponse()
 	require.Equal(t, uint64(200), res)

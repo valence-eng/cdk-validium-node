@@ -11,7 +11,6 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/state"
 	"github.com/ethereum/go-ethereum/common"
-	types "github.com/ethereum/go-ethereum/core/types"
 )
 
 type ethermanStatusEnum int8
@@ -108,8 +107,8 @@ type rollupInfoByBlockRangeResult struct {
 	order      map[common.Hash][]etherman.Order
 	// If there are no blocks in this range, it gets the last one
 	// so it could be nil if there are no blocks.
-	lastBlockOfRange     *types.Block
-	previousBlockOfRange *types.Block
+	lastBlockOfRange     *etherman.BlockWithHash
+	previousBlockOfRange *etherman.BlockWithHash
 }
 
 func (r *rollupInfoByBlockRangeResult) toStringBrief() string {

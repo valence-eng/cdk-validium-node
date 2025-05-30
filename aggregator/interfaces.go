@@ -5,11 +5,11 @@ import (
 	"math/big"
 
 	"github.com/0xPolygonHermez/zkevm-node/aggregator/prover"
+	ethman "github.com/0xPolygonHermez/zkevm-node/etherman"
 	ethmanTypes "github.com/0xPolygonHermez/zkevm-node/etherman/types"
 	"github.com/0xPolygonHermez/zkevm-node/ethtxmanager"
 	"github.com/0xPolygonHermez/zkevm-node/state"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -41,7 +41,7 @@ type etherman interface {
 	GetRollupId() uint32
 	GetLatestVerifiedBatchNum() (uint64, error)
 	BuildTrustedVerifyBatchesTxData(lastVerifiedBatch, newVerifiedBatch uint64, inputs *ethmanTypes.FinalProofInputs, beneficiary common.Address) (to *common.Address, data []byte, err error)
-	GetLatestBlockHeader(ctx context.Context) (*types.Header, error)
+	GetLatestBlockHeader(ctx context.Context) (*ethman.HeaderWithHash, error)
 }
 
 // aggregatorTxProfitabilityChecker interface for different profitability

@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"time"
 
+	ethman "github.com/0xPolygonHermez/zkevm-node/etherman"
 	ethmanTypes "github.com/0xPolygonHermez/zkevm-node/etherman/types"
 	"github.com/0xPolygonHermez/zkevm-node/ethtxmanager"
 	"github.com/0xPolygonHermez/zkevm-node/state"
@@ -19,7 +20,7 @@ import (
 type etherman interface {
 	BuildSequenceBatchesTxData(sender common.Address, sequences []ethmanTypes.Sequence, maxSequenceTimestamp uint64, initSequenceBatchNumber uint64, l2Coinbase common.Address, committeeSignaturesAndAddrs []byte) (to *common.Address, data []byte, err error)
 	EstimateGasSequenceBatches(sender common.Address, sequences []ethmanTypes.Sequence, maxSequenceTimestamp uint64, initSequenceBatchNumber uint64, l2Coinbase common.Address, committeeSignaturesAndAddrs []byte) (*types.Transaction, error)
-	GetLatestBlockHeader(ctx context.Context) (*types.Header, error)
+	GetLatestBlockHeader(ctx context.Context) (*ethman.HeaderWithHash, error)
 	GetLatestBatchNumber() (uint64, error)
 }
 

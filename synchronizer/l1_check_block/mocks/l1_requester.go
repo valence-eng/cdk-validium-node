@@ -7,6 +7,7 @@ import (
 	big "math/big"
 
 	mock "github.com/stretchr/testify/mock"
+	etherman "github.com/0xPolygonHermez/zkevm-node/etherman"
 
 	types "github.com/ethereum/go-ethereum/core/types"
 )
@@ -24,8 +25,16 @@ func (_m *L1Requester) EXPECT() *L1Requester_Expecter {
 	return &L1Requester_Expecter{mock: &_m.Mock}
 }
 
+func (_m *L1Requester) HeaderByNumber(ctx context.Context, number *big.Int) (*etherman.HeaderWithHash, error) {
+	header, err := _m.internalHeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, err
+	}
+	return etherman.HeaderWithHashFromHeader(header), nil
+}
+
 // HeaderByNumber provides a mock function with given fields: ctx, number
-func (_m *L1Requester) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
+func (_m *L1Requester) internalHeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	ret := _m.Called(ctx, number)
 
 	if len(ret) == 0 {

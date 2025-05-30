@@ -28,8 +28,16 @@ func (_m *EthermanFullInterface) EXPECT() *EthermanFullInterface_Expecter {
 	return &EthermanFullInterface_Expecter{mock: &_m.Mock}
 }
 
+func (_m *EthermanFullInterface) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*etherman.BlockWithHash, error) {
+	block, err := _m.internalEthBlockByNumber(ctx, blockNumber)
+	if err != nil {
+		return nil, err
+	}
+	return etherman.BlockWithHashFromBlock(block), nil
+}
+
 // EthBlockByNumber provides a mock function with given fields: ctx, blockNumber
-func (_m *EthermanFullInterface) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*types.Block, error) {
+func (_m *EthermanFullInterface) internalEthBlockByNumber(ctx context.Context, blockNumber uint64) (*types.Block, error) {
 	ret := _m.Called(ctx, blockNumber)
 
 	if len(ret) == 0 {
@@ -377,8 +385,16 @@ func (_c *EthermanFullInterface_GetTrustedSequencerURL_Call) RunAndReturn(run fu
 	return _c
 }
 
+func (_m *EthermanFullInterface) HeaderByNumber(ctx context.Context, number *big.Int) (*etherman.HeaderWithHash, error) {
+	header, err := _m.internalHeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, err
+	}
+	return etherman.HeaderWithHashFromHeader(header), nil
+}
+
 // HeaderByNumber provides a mock function with given fields: ctx, number
-func (_m *EthermanFullInterface) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
+func (_m *EthermanFullInterface) internalHeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	ret := _m.Called(ctx, number)
 
 	if len(ret) == 0 {

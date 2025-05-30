@@ -12,7 +12,6 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/state"
 	syncCommon "github.com/0xPolygonHermez/zkevm-node/synchronizer/common"
 	"github.com/ethereum/go-ethereum/common"
-	types "github.com/ethereum/go-ethereum/core/types"
 )
 
 const (
@@ -264,7 +263,7 @@ func logBlocks(blocks []etherman.Block) {
 	}
 }
 
-func convertL1BlockToEthBlock(fb *types.Block) etherman.Block {
+func convertL1BlockToEthBlock(fb *etherman.BlockWithHash) etherman.Block {
 	return etherman.Block{
 		BlockNumber: fb.NumberU64(),
 		BlockHash:   fb.Hash(),
@@ -273,7 +272,7 @@ func convertL1BlockToEthBlock(fb *types.Block) etherman.Block {
 	}
 }
 
-func convertL1BlockToStateBlock(fb *types.Block) state.Block {
+func convertL1BlockToStateBlock(fb *etherman.BlockWithHash) state.Block {
 	return state.Block{
 		BlockNumber: fb.NumberU64(),
 		BlockHash:   fb.Hash(),
