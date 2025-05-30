@@ -740,7 +740,7 @@ func (etherMan *Client) initialSequenceBatches(ctx context.Context, vLog types.L
 	if err != nil {
 		return err
 	}
-	fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+	fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 	if err != nil {
 		return fmt.Errorf("error getting fullBlockInfo. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
@@ -755,13 +755,13 @@ func (etherMan *Client) initialSequenceBatches(ctx context.Context, vLog types.L
 		PolygonRollupBaseEtrogBatchData: &polygonzkevm.PolygonRollupBaseEtrogBatchData{
 			Transactions:         initialSequenceBatches.Transactions,
 			ForcedGlobalExitRoot: initialSequenceBatches.LastGlobalExitRoot,
-			ForcedTimestamp:      fullBlock.Time(),
-			ForcedBlockHashL1:    fullBlock.ParentHash(),
+			ForcedTimestamp:      fullBlock.Time,
+			ForcedBlockHashL1:    fullBlock.ParentHash,
 		},
 	})
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
 		block.SequencedBatches = append(block.SequencedBatches, sequences)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -788,11 +788,11 @@ func (etherMan *Client) updateForkId(ctx context.Context, vLog types.Log, blocks
 		Version:     version,
 	}
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+		fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		t := time.Unix(int64(fullBlock.Time()), 0)
+		t := time.Unix(int64(fullBlock.Time), 0)
 		block := prepareBlock(vLog, t, fullBlock)
 		block.ForkIDs = append(block.ForkIDs, fork)
 		*blocks = append(*blocks, block)
@@ -846,11 +846,11 @@ func (etherMan *Client) updateL1InfoTreeEvent(ctx context.Context, vLog types.Lo
 }
 
 func (etherMan *Client) retrieveFullBlockForEvent(ctx context.Context, vLog types.Log) (*Block, error) {
-	fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+	fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 	if err != nil {
 		return nil, fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
-	t := time.Unix(int64(fullBlock.Time()), 0)
+	t := time.Unix(int64(fullBlock.Time), 0)
 	block := prepareBlock(vLog, t, fullBlock)
 	return &block, nil
 }
@@ -878,11 +878,11 @@ func (etherMan *Client) processUpdateGlobalExitRootEvent(ctx context.Context, ma
 	gExitRoot.BlockNumber = vLog.BlockNumber
 	gExitRoot.GlobalExitRoot = hash(mainnetExitRoot, rollupExitRoot)
 
-	fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+	fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 	if err != nil {
 		return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
-	t := time.Unix(int64(fullBlock.Time()), 0)
+	t := time.Unix(int64(fullBlock.Time), 0)
 	gExitRoot.Timestamp = t
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
@@ -1138,11 +1138,11 @@ func (etherMan *Client) forcedBatchEvent(ctx context.Context, vLog types.Log, bl
 		forcedBatch.RawTxsData = fb.Transactions
 	}
 	forcedBatch.Sequencer = fb.Sequencer
-	fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+	fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 	if err != nil {
 		return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
-	t := time.Unix(int64(fullBlock.Time()), 0)
+	t := time.Unix(int64(fullBlock.Time), 0)
 	forcedBatch.ForcedAt = t
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
 		block := prepareBlock(vLog, t, fullBlock)
@@ -1213,11 +1213,11 @@ func (etherMan *Client) sequencedBatchesEvent(ctx context.Context, vLog types.Lo
 	}
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+		fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
 		block.SequencedBatches = append(block.SequencedBatches, sequences)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1260,11 +1260,11 @@ func (etherMan *Client) sequencedBatchesPreEtrogEvent(ctx context.Context, vLog 
 	}
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+		fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
 		block.SequencedBatches = append(block.SequencedBatches, sequences)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1615,11 +1615,11 @@ func (etherMan *Client) verifyBatches(
 	verifyBatch.Aggregator = aggregator
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+		fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
 		block.VerifiedBatches = append(block.VerifiedBatches, verifyBatch)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1656,7 +1656,7 @@ func (etherMan *Client) forceSequencedBatchesEvent(ctx context.Context, vLog typ
 	if err != nil {
 		return err
 	}
-	fullBlock, err := etherMan.EthClient.BlockByHash(ctx, vLog.BlockHash)
+	fullBlock, err := etherMan.GetBlockInfoByHash(ctx, vLog.BlockHash)
 	if err != nil {
 		return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
@@ -1666,7 +1666,7 @@ func (etherMan *Client) forceSequencedBatchesEvent(ctx context.Context, vLog typ
 	}
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
 		block.SequencedForceBatches = append(block.SequencedForceBatches, sequencedForceBatch)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1684,7 +1684,7 @@ func (etherMan *Client) forceSequencedBatchesEvent(ctx context.Context, vLog typ
 	return nil
 }
 
-func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequencer common.Address, txHash common.Hash, block *types.Block, nonce uint64) ([]SequencedForceBatch, error) {
+func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequencer common.Address, txHash common.Hash, block *BlockInfo, nonce uint64) ([]SequencedForceBatch, error) {
 	// Extract coded txs.
 	// Load contract ABI
 	abi, err := abi.JSON(strings.NewReader(polygonzkevm.PolygonzkevmABI))
@@ -1721,7 +1721,7 @@ func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequence
 			BatchNumber:                     bn,
 			Coinbase:                        sequencer,
 			TxHash:                          txHash,
-			Timestamp:                       time.Unix(int64(block.Time()), 0),
+			Timestamp:                       time.Unix(int64(block.Time), 0),
 			Nonce:                           nonce,
 			PolygonRollupBaseEtrogBatchData: force,
 		}
@@ -1729,11 +1729,11 @@ func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequence
 	return sequencedForcedBatches, nil
 }
 
-func prepareBlock(vLog types.Log, t time.Time, fullBlock *types.Block) Block {
+func prepareBlock(vLog types.Log, t time.Time, fullBlock *BlockInfo) Block {
 	var block Block
 	block.BlockNumber = vLog.BlockNumber
 	block.BlockHash = vLog.BlockHash
-	block.ParentHash = fullBlock.ParentHash()
+	block.ParentHash = fullBlock.ParentHash
 	block.ReceivedAt = t
 	return block
 }
@@ -1755,7 +1755,7 @@ func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*H
 	if err != nil {
 		return nil, err
 	}
-	headerHash, err := etherMan.GetRightBlockHash(ctx, number)
+	headerHash, err := etherMan.GetRightBlockHashByNumber(ctx, number)
 	if err != nil {
 		return nil, err
 	}
@@ -1771,7 +1771,7 @@ func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64
 		}
 		return nil, err
 	}
-	blockHash, err := etherMan.GetRightBlockHash(ctx, new(big.Int).SetUint64(blockNumber))
+	blockHash, err := etherMan.GetRightBlockHashByNumber(ctx, new(big.Int).SetUint64(blockNumber))
 	if err != nil {
 		return nil, err
 	}
@@ -1800,7 +1800,7 @@ func (etherMan *Client) GetLatestBlockHeader(ctx context.Context) (*HeaderWithHa
 	if err != nil || header == nil {
 		return nil, err
 	}
-	headerHash, err := etherMan.GetRightBlockHash(ctx, big.NewInt(int64(rpc.LatestBlockNumber)))
+	headerHash, err := etherMan.GetRightBlockHashByNumber(ctx, big.NewInt(int64(rpc.LatestBlockNumber)))
 	if err != nil {
 		return nil, err
 	}
@@ -2139,11 +2139,22 @@ func toBlockNumArg(number *big.Int) string {
 	return fmt.Sprintf("<invalid %d>", number)
 }
 
-type rpcBlock struct {
-	Hash common.Hash `json:"hash"`
+type BlockInfo struct {
+	ParentHash common.Hash `json:"parentHash"       gencodec:"required"`
+	Time       uint64      `json:"timestamp"        gencodec:"required"`
+	Hash       common.Hash `json:"hash"             gencodec:"required"`
 }
 
-func (etherMan *Client) GetRightBlockHash(ctx context.Context, blockNum *big.Int) (common.Hash, error) {
+type rpcBlockHeader struct {
+	ParentHash common.Hash `json:"parentHash"       gencodec:"required"`
+	Time       string      `json:"timestamp"        gencodec:"required"`
+}
+
+type rpcBlock struct {
+	Hash common.Hash `json:"hash"             gencodec:"required"`
+}
+
+func (etherMan *Client) GetRightBlockHashByNumber(ctx context.Context, blockNum *big.Int) (common.Hash, error) {
 	var raw json.RawMessage
 	err := etherMan.ethClientRPC.CallContext(ctx, &raw, "eth_getBlockByNumber", toBlockNumArg(blockNum), false)
 	if err != nil {
@@ -2158,6 +2169,40 @@ func (etherMan *Client) GetRightBlockHash(ctx context.Context, blockNum *big.Int
 	}
 	return body.Hash, nil
 
+}
+
+func (etherMan *Client) GetBlockInfoByHash(ctx context.Context, blockHash common.Hash) (*BlockInfo, error) {
+	var raw json.RawMessage
+	err := etherMan.ethClientRPC.CallContext(ctx, &raw, "eth_getBlockByHash", blockHash, false)
+	if err != nil {
+		return nil, err
+	}
+	var header rpcBlockHeader
+	if err := json.Unmarshal(raw, &header); err != nil {
+		return nil, err
+	}
+	if header.ParentHash == (common.Hash{}) {
+		return nil, fmt.Errorf("parent hash not found for block %s", blockHash.String())
+	}
+	if header.Time == "" {
+		return nil, fmt.Errorf("timestamp not found for block %s", blockHash.String())
+	}
+	var body rpcBlock
+	if err := json.Unmarshal(raw, &body); err != nil {
+		return nil, err
+	}
+	if body.Hash == (common.Hash{}) {
+		return nil, fmt.Errorf("block not found for hash %s", blockHash.String())
+	}
+	timeStamp, err := hexutil.DecodeUint64(header.Time)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode timestamp for block %s: %w", blockHash.String(), err)
+	}
+	return &BlockInfo{
+		ParentHash: header.ParentHash,
+		Time:       timeStamp,
+		Hash:       body.Hash,
+	}, nil
 }
 
 // BlockWithHash is a composite type embedding *types.Block and overriding the Hash method.
