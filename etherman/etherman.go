@@ -36,6 +36,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -204,9 +205,10 @@ type Client struct {
 
 	GasProviders externalGasProviders
 
-	l1Cfg L1Config
-	cfg   Config
-	auth  map[common.Address]bind.TransactOpts // empty in case of read-only client
+	l1Cfg        L1Config
+	cfg          Config
+	auth         map[common.Address]bind.TransactOpts // empty in case of read-only client
+	ethClientRPC *rpc.Client                          // used to get the latest block number and other RPC calls
 
 	da    dataavailability.BatchDataProvider
 	state stateProvider
@@ -302,11 +304,12 @@ func NewClient(cfg Config, l1Config L1Config, da dataavailability.BatchDataProvi
 			MultiGasProvider: cfg.MultiGasProvider,
 			Providers:        gProviders,
 		},
-		l1Cfg: l1Config,
-		cfg:   cfg,
-		auth:  map[common.Address]bind.TransactOpts{},
-		da:    da,
-		state: st,
+		l1Cfg:        l1Config,
+		cfg:          cfg,
+		auth:         map[common.Address]bind.TransactOpts{},
+		da:           da,
+		state:        st,
+		ethClientRPC: ethClient.Client(),
 	}, nil
 }
 
@@ -1752,7 +1755,11 @@ func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*H
 	if err != nil {
 		return nil, err
 	}
-	return HeaderWithHashFromHeader(header), nil
+	headerHash, err := etherMan.GetRightBlockHash(ctx, number)
+	if err != nil {
+		return nil, err
+	}
+	return HeaderWithHashFromHeaderAndHash(header, headerHash), nil
 }
 
 // EthBlockByNumber function retrieves the ethereum block information by ethereum block number.
@@ -1764,7 +1771,11 @@ func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64
 		}
 		return nil, err
 	}
-	return BlockWithHashFromBlock(block), nil
+	blockHash, err := etherMan.GetRightBlockHash(ctx, new(big.Int).SetUint64(blockNumber))
+	if err != nil {
+		return nil, err
+	}
+	return BlockWithHashFromBlockAndHash(block, blockHash), nil
 }
 
 // GetLatestBatchNumber function allows to retrieve the latest proposed batch in the smc
@@ -1789,7 +1800,11 @@ func (etherMan *Client) GetLatestBlockHeader(ctx context.Context) (*HeaderWithHa
 	if err != nil || header == nil {
 		return nil, err
 	}
-	return HeaderWithHashFromHeader(header), nil
+	headerHash, err := etherMan.GetRightBlockHash(ctx, big.NewInt(int64(rpc.LatestBlockNumber)))
+	if err != nil {
+		return nil, err
+	}
+	return HeaderWithHashFromHeaderAndHash(header, headerHash), nil
 }
 
 // GetLatestBlockNumber gets the latest block number from the ethereum
@@ -2109,6 +2124,42 @@ func (etherMan *Client) GetRollupId() uint32 {
 	return etherMan.RollupID
 }
 
+func toBlockNumArg(number *big.Int) string {
+	if number == nil {
+		return "latest"
+	}
+	if number.Sign() >= 0 {
+		return hexutil.EncodeBig(number)
+	}
+	// It's negative.
+	if number.IsInt64() {
+		return rpc.BlockNumber(number.Int64()).String()
+	}
+	// It's negative and large, which is invalid.
+	return fmt.Sprintf("<invalid %d>", number)
+}
+
+type rpcBlock struct {
+	Hash common.Hash `json:"hash"`
+}
+
+func (etherMan *Client) GetRightBlockHash(ctx context.Context, blockNum *big.Int) (common.Hash, error) {
+	var raw json.RawMessage
+	err := etherMan.ethClientRPC.CallContext(ctx, &raw, "eth_getBlockByNumber", toBlockNumArg(blockNum), false)
+	if err != nil {
+		return common.Hash{}, err
+	}
+	var body rpcBlock
+	if err := json.Unmarshal(raw, &body); err != nil {
+		return common.Hash{}, err
+	}
+	if body.Hash == (common.Hash{}) {
+		return common.Hash{}, fmt.Errorf("block not found for number %s", toBlockNumArg(blockNum))
+	}
+	return body.Hash, nil
+
+}
+
 // BlockWithHash is a composite type embedding *types.Block and overriding the Hash method.
 type BlockWithHash struct {
 	*types.Block
@@ -2129,7 +2180,17 @@ func BlockWithHashFromBlock(block *types.Block) *BlockWithHash {
 	}
 	return &BlockWithHash{
 		Block:      block,
-		CustomHash: block.Hash(),
+		CustomHash: common.Hash{},
+	}
+}
+
+func BlockWithHashFromBlockAndHash(block *types.Block, customHash common.Hash) *BlockWithHash {
+	if block == nil {
+		return nil
+	}
+	return &BlockWithHash{
+		Block:      block,
+		CustomHash: customHash,
 	}
 }
 
@@ -2154,6 +2215,16 @@ func HeaderWithHashFromHeader(header *types.Header) *HeaderWithHash {
 	}
 	return &HeaderWithHash{
 		Header:     header,
-		CustomHash: header.Hash(),
+		CustomHash: common.Hash{},
+	}
+}
+
+func HeaderWithHashFromHeaderAndHash(header *types.Header, customHash common.Hash) *HeaderWithHash {
+	if header == nil {
+		return nil
+	}
+	return &HeaderWithHash{
+		Header:     header,
+		CustomHash: customHash,
 	}
 }
