@@ -287,7 +287,7 @@ func newDataPackage(fromBlock, toBlock uint64) *L1SyncMessage {
 				fromBlock: fromBlock,
 				toBlock:   toBlock,
 			},
-			lastBlockOfRange: types.NewBlock(&types.Header{Number: big.NewInt(int64(toBlock))}, nil, nil, nil, nil),
+			lastBlockOfRange: etherman.BlockWithHashFromBlock(types.NewBlock(&types.Header{Number: big.NewInt(int64(toBlock))}, nil, nil, nil, nil)),
 		},
 		dataIsValid: true,
 		ctrlIsValid: false,

@@ -1747,12 +1747,16 @@ func hash(data ...[32]byte) [32]byte {
 
 // HeaderByNumber returns a block header from the current canonical chain. If number is
 // nil, the latest known header is returned.
-func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
-	return etherMan.EthClient.HeaderByNumber(ctx, number)
+func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*HeaderWithHash, error) {
+	header, err := etherMan.EthClient.HeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, err
+	}
+	return HeaderWithHashFromHeader(header), nil
 }
 
 // EthBlockByNumber function retrieves the ethereum block information by ethereum block number.
-func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*types.Block, error) {
+func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*BlockWithHash, error) {
 	block, err := etherMan.EthClient.BlockByNumber(ctx, new(big.Int).SetUint64(blockNumber))
 	if err != nil {
 		if errors.Is(err, ethereum.NotFound) || err.Error() == "block does not exist in blockchain" {
@@ -1760,7 +1764,7 @@ func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64
 		}
 		return nil, err
 	}
-	return block, nil
+	return BlockWithHashFromBlock(block), nil
 }
 
 // GetLatestBatchNumber function allows to retrieve the latest proposed batch in the smc
@@ -1780,12 +1784,12 @@ func (etherMan *Client) GetLatestBatchNumber() (uint64, error) {
 }
 
 // GetLatestBlockHeader gets the latest block header from the ethereum
-func (etherMan *Client) GetLatestBlockHeader(ctx context.Context) (*types.Header, error) {
+func (etherMan *Client) GetLatestBlockHeader(ctx context.Context) (*HeaderWithHash, error) {
 	header, err := etherMan.EthClient.HeaderByNumber(ctx, big.NewInt(int64(rpc.LatestBlockNumber)))
 	if err != nil || header == nil {
 		return nil, err
 	}
-	return header, nil
+	return HeaderWithHashFromHeader(header), nil
 }
 
 // GetLatestBlockNumber gets the latest block number from the ethereum
@@ -2103,4 +2107,53 @@ func (etherMan *Client) SetDataAvailabilityProtocol(from, daAddress common.Addre
 // GetRollupId returns the rollup id
 func (etherMan *Client) GetRollupId() uint32 {
 	return etherMan.RollupID
+}
+
+// BlockWithHash is a composite type embedding *types.Block and overriding the Hash method.
+type BlockWithHash struct {
+	*types.Block
+	CustomHash common.Hash
+}
+
+// Hash returns the custom hash if set, otherwise falls back to the embedded Block's Hash method.
+func (b *BlockWithHash) Hash() common.Hash {
+	if (b.CustomHash != common.Hash{}) {
+		return b.CustomHash
+	}
+	return b.Block.Hash()
+}
+
+func BlockWithHashFromBlock(block *types.Block) *BlockWithHash {
+	if block == nil {
+		return nil
+	}
+	return &BlockWithHash{
+		Block:      block,
+		CustomHash: block.Hash(),
+	}
+}
+
+// HeaderWithHash is a composite type embedding *types.Header and overriding the Hash method.
+type HeaderWithHash struct {
+	*types.Header
+	CustomHash common.Hash
+}
+
+// Hash returns the custom hash if set, otherwise falls back to the embedded Header's Hash method.
+func (h *HeaderWithHash) Hash() common.Hash {
+	if (h.CustomHash != common.Hash{}) {
+		return h.CustomHash
+	}
+	return h.Header.Hash()
+}
+
+// HeaderWithHashFromHeader creates a HeaderWithHash from a *types.Header.
+func HeaderWithHashFromHeader(header *types.Header) *HeaderWithHash {
+	if header == nil {
+		return nil
+	}
+	return &HeaderWithHash{
+		Header:     header,
+		CustomHash: header.Hash(),
+	}
 }

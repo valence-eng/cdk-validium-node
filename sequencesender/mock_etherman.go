@@ -8,6 +8,7 @@ import (
 	common "github.com/ethereum/go-ethereum/common"
 
 	coretypes "github.com/ethereum/go-ethereum/core/types"
+	ethMan "github.com/0xPolygonHermez/zkevm-node/etherman"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -116,8 +117,16 @@ func (_m *EthermanMock) GetLatestBatchNumber() (uint64, error) {
 	return r0, r1
 }
 
+func (_m *EthermanMock) GetLatestBlockHeader(ctx context.Context) (*ethMan.HeaderWithHash, error) {
+	header, err := _m.internalGetLatestBlockHeader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return ethMan.HeaderWithHashFromHeader(header), nil
+}
+
 // GetLatestBlockHeader provides a mock function with given fields: ctx
-func (_m *EthermanMock) GetLatestBlockHeader(ctx context.Context) (*coretypes.Header, error) {
+func (_m *EthermanMock) internalGetLatestBlockHeader(ctx context.Context) (*coretypes.Header, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {

@@ -28,8 +28,16 @@ func (_m *L1ParallelEthermanInterfaceMock) EXPECT() *L1ParallelEthermanInterface
 	return &L1ParallelEthermanInterfaceMock_Expecter{mock: &_m.Mock}
 }
 
+func (_m *L1ParallelEthermanInterfaceMock) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*etherman.BlockWithHash, error) {
+	block, err := _m.internalEthBlockByNumber(ctx, blockNumber)
+	if err != nil {
+		return nil, err
+	}
+	return etherman.BlockWithHashFromBlock(block), nil
+}
+
 // EthBlockByNumber provides a mock function with given fields: ctx, blockNumber
-func (_m *L1ParallelEthermanInterfaceMock) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*types.Block, error) {
+func (_m *L1ParallelEthermanInterfaceMock) internalEthBlockByNumber(ctx context.Context, blockNumber uint64) (*types.Block, error) {
 	ret := _m.Called(ctx, blockNumber)
 
 	if len(ret) == 0 {
@@ -320,9 +328,16 @@ func (_c *L1ParallelEthermanInterfaceMock_GetTrustedSequencerURL_Call) RunAndRet
 	_c.Call.Return(run)
 	return _c
 }
+func (_m *L1ParallelEthermanInterfaceMock) HeaderByNumber(ctx context.Context, number *big.Int) (*etherman.HeaderWithHash, error) {
+	header, err := _m.internalHeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, err
+	}
+	return etherman.HeaderWithHashFromHeader(header), nil
+}
 
 // HeaderByNumber provides a mock function with given fields: ctx, number
-func (_m *L1ParallelEthermanInterfaceMock) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
+func (_m *L1ParallelEthermanInterfaceMock) internalHeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	ret := _m.Called(ctx, number)
 
 	if len(ret) == 0 {

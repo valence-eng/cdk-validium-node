@@ -51,7 +51,7 @@ func TestGivenConsumerWhenFailsToProcessRollupThenDontKnownLastEthBlock(t *testi
 		},
 		blocks:           []etherman.Block{},
 		order:            map[common.Hash][]etherman.Order{},
-		lastBlockOfRange: types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil),
+		lastBlockOfRange: etherman.BlockWithHashFromBlock(types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil)),
 	}
 	data.syncMock.
 		On("ProcessBlockRange", mock.Anything, mock.Anything).
@@ -100,7 +100,7 @@ func TestGivenConsumerWhenNextBlockNumberIsNoSetThenAcceptAnythingAndProcess(t *
 		},
 		blocks:           []etherman.Block{},
 		order:            map[common.Hash][]etherman.Order{},
-		lastBlockOfRange: types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil),
+		lastBlockOfRange: etherman.BlockWithHashFromBlock(types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil)),
 	}
 
 	data.ch <- *newL1SyncMessageData(&responseRollupInfoByBlockRange)
@@ -127,7 +127,7 @@ func TestGivenConsumerWhenNextBlockNumberIsNoSetThenAcceptAnythingAndProcessAndC
 		},
 		blocks:           []etherman.Block{},
 		order:            map[common.Hash][]etherman.Order{},
-		lastBlockOfRange: types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil),
+		lastBlockOfRange: etherman.BlockWithHashFromBlock(types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil)),
 	}
 
 	data.ch <- *newL1SyncMessageData(&responseRollupInfoByBlockRange)
@@ -154,7 +154,7 @@ func TestGivenConsumerWhenNextBlockNumberIsNoSetThenFirstRollupInfoSetIt(t *test
 		},
 		blocks:           []etherman.Block{},
 		order:            map[common.Hash][]etherman.Order{},
-		lastBlockOfRange: types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil),
+		lastBlockOfRange: etherman.BlockWithHashFromBlock(types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil)),
 	}
 	// Fist package set highestBlockProcessed
 	data.ch <- *newL1SyncMessageData(&responseRollupInfoByBlockRange)
@@ -183,7 +183,7 @@ func TestGivenProducerDesyncrhonizedOnHeadL1(t *testing.T) {
 		},
 		blocks:           []etherman.Block{},
 		order:            map[common.Hash][]etherman.Order{},
-		lastBlockOfRange: types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil),
+		lastBlockOfRange: etherman.BlockWithHashFromBlock(types.NewBlock(&types.Header{Number: big.NewInt(123)}, nil, nil, nil, nil)),
 	}
 	// Fist package set highestBlockProcessed
 	data.ch <- *newL1SyncMessageData(&responseRollupInfoByBlockRange)

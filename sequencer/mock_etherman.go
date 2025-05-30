@@ -145,8 +145,16 @@ func (_m *EthermanMock) GetRollupInfoByBlockRange(ctx context.Context, fromBlock
 	return r0, r1, r2
 }
 
+func (_m *EthermanMock) HeaderByNumber(ctx context.Context, number *big.Int) (*etherman.HeaderWithHash, error) {
+	header, err := _m.internalHeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, err
+	}
+	return etherman.HeaderWithHashFromHeader(header), nil
+}
+
 // HeaderByNumber provides a mock function with given fields: ctx, number
-func (_m *EthermanMock) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
+func (_m *EthermanMock) internalHeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	ret := _m.Called(ctx, number)
 
 	if len(ret) == 0 {
