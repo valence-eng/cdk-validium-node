@@ -755,13 +755,13 @@ func (etherMan *Client) initialSequenceBatches(ctx context.Context, vLog types.L
 		PolygonRollupBaseEtrogBatchData: &polygonzkevm.PolygonRollupBaseEtrogBatchData{
 			Transactions:         initialSequenceBatches.Transactions,
 			ForcedGlobalExitRoot: initialSequenceBatches.LastGlobalExitRoot,
-			ForcedTimestamp:      fullBlock.Time,
-			ForcedBlockHashL1:    fullBlock.ParentHash,
+			ForcedTimestamp:      fullBlock.Time(),
+			ForcedBlockHashL1:    fullBlock.ParentHash(),
 		},
 	})
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
 		block.SequencedBatches = append(block.SequencedBatches, sequences)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -792,7 +792,7 @@ func (etherMan *Client) updateForkId(ctx context.Context, vLog types.Log, blocks
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		t := time.Unix(int64(fullBlock.Time), 0)
+		t := time.Unix(int64(fullBlock.Time()), 0)
 		block := prepareBlock(vLog, t, fullBlock)
 		block.ForkIDs = append(block.ForkIDs, fork)
 		*blocks = append(*blocks, block)
@@ -850,7 +850,7 @@ func (etherMan *Client) retrieveFullBlockForEvent(ctx context.Context, vLog type
 	if err != nil {
 		return nil, fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
-	t := time.Unix(int64(fullBlock.Time), 0)
+	t := time.Unix(int64(fullBlock.Time()), 0)
 	block := prepareBlock(vLog, t, fullBlock)
 	return &block, nil
 }
@@ -882,7 +882,7 @@ func (etherMan *Client) processUpdateGlobalExitRootEvent(ctx context.Context, ma
 	if err != nil {
 		return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
-	t := time.Unix(int64(fullBlock.Time), 0)
+	t := time.Unix(int64(fullBlock.Time()), 0)
 	gExitRoot.Timestamp = t
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
@@ -1142,7 +1142,7 @@ func (etherMan *Client) forcedBatchEvent(ctx context.Context, vLog types.Log, bl
 	if err != nil {
 		return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 	}
-	t := time.Unix(int64(fullBlock.Time), 0)
+	t := time.Unix(int64(fullBlock.Time()), 0)
 	forcedBatch.ForcedAt = t
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
 		block := prepareBlock(vLog, t, fullBlock)
@@ -1217,7 +1217,7 @@ func (etherMan *Client) sequencedBatchesEvent(ctx context.Context, vLog types.Lo
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
 		block.SequencedBatches = append(block.SequencedBatches, sequences)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1264,7 +1264,7 @@ func (etherMan *Client) sequencedBatchesPreEtrogEvent(ctx context.Context, vLog 
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
 		block.SequencedBatches = append(block.SequencedBatches, sequences)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1619,7 +1619,7 @@ func (etherMan *Client) verifyBatches(
 		if err != nil {
 			return fmt.Errorf("error getting hashParent. BlockNumber: %d. Error: %w", vLog.BlockNumber, err)
 		}
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
 		block.VerifiedBatches = append(block.VerifiedBatches, verifyBatch)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1666,7 +1666,7 @@ func (etherMan *Client) forceSequencedBatchesEvent(ctx context.Context, vLog typ
 	}
 
 	if len(*blocks) == 0 || ((*blocks)[len(*blocks)-1].BlockHash != vLog.BlockHash || (*blocks)[len(*blocks)-1].BlockNumber != vLog.BlockNumber) {
-		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time), 0), fullBlock)
+		block := prepareBlock(vLog, time.Unix(int64(fullBlock.Time()), 0), fullBlock)
 		block.SequencedForceBatches = append(block.SequencedForceBatches, sequencedForceBatch)
 		*blocks = append(*blocks, block)
 	} else if (*blocks)[len(*blocks)-1].BlockHash == vLog.BlockHash && (*blocks)[len(*blocks)-1].BlockNumber == vLog.BlockNumber {
@@ -1684,7 +1684,7 @@ func (etherMan *Client) forceSequencedBatchesEvent(ctx context.Context, vLog typ
 	return nil
 }
 
-func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequencer common.Address, txHash common.Hash, block *BlockInfo, nonce uint64) ([]SequencedForceBatch, error) {
+func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequencer common.Address, txHash common.Hash, block *BlockWithHash, nonce uint64) ([]SequencedForceBatch, error) {
 	// Extract coded txs.
 	// Load contract ABI
 	abi, err := abi.JSON(strings.NewReader(polygonzkevm.PolygonzkevmABI))
@@ -1721,7 +1721,7 @@ func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequence
 			BatchNumber:                     bn,
 			Coinbase:                        sequencer,
 			TxHash:                          txHash,
-			Timestamp:                       time.Unix(int64(block.Time), 0),
+			Timestamp:                       time.Unix(int64(block.Time()), 0),
 			Nonce:                           nonce,
 			PolygonRollupBaseEtrogBatchData: force,
 		}
@@ -1729,11 +1729,11 @@ func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequence
 	return sequencedForcedBatches, nil
 }
 
-func prepareBlock(vLog types.Log, t time.Time, fullBlock *BlockInfo) Block {
+func prepareBlock(vLog types.Log, t time.Time, fullBlock *BlockWithHash) Block {
 	var block Block
 	block.BlockNumber = vLog.BlockNumber
 	block.BlockHash = vLog.BlockHash
-	block.ParentHash = fullBlock.ParentHash
+	block.ParentHash = fullBlock.ParentHash()
 	block.ReceivedAt = t
 	return block
 }
@@ -1751,31 +1751,23 @@ func hash(data ...[32]byte) [32]byte {
 // HeaderByNumber returns a block header from the current canonical chain. If number is
 // nil, the latest known header is returned.
 func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*HeaderWithHash, error) {
-	header, err := etherMan.EthClient.HeaderByNumber(ctx, number)
+	header, err := etherMan.GetHeaderInfoByNumber(ctx, number)
 	if err != nil {
 		return nil, err
 	}
-	headerHash, err := etherMan.GetRightBlockHashByNumber(ctx, number)
-	if err != nil {
-		return nil, err
-	}
-	return HeaderWithHashFromHeaderAndHash(header, headerHash), nil
+	return header, nil
 }
 
 // EthBlockByNumber function retrieves the ethereum block information by ethereum block number.
 func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64) (*BlockWithHash, error) {
-	block, err := etherMan.EthClient.BlockByNumber(ctx, new(big.Int).SetUint64(blockNumber))
+	block, err := etherMan.GetBlockInfoByNumber(ctx, new(big.Int).SetUint64(blockNumber))
 	if err != nil {
 		if errors.Is(err, ethereum.NotFound) || err.Error() == "block does not exist in blockchain" {
 			return nil, ErrNotFound
 		}
 		return nil, err
 	}
-	blockHash, err := etherMan.GetRightBlockHashByNumber(ctx, new(big.Int).SetUint64(blockNumber))
-	if err != nil {
-		return nil, err
-	}
-	return BlockWithHashFromBlockAndHash(block, blockHash), nil
+	return block, nil
 }
 
 // GetLatestBatchNumber function allows to retrieve the latest proposed batch in the smc
@@ -1796,15 +1788,11 @@ func (etherMan *Client) GetLatestBatchNumber() (uint64, error) {
 
 // GetLatestBlockHeader gets the latest block header from the ethereum
 func (etherMan *Client) GetLatestBlockHeader(ctx context.Context) (*HeaderWithHash, error) {
-	header, err := etherMan.EthClient.HeaderByNumber(ctx, big.NewInt(int64(rpc.LatestBlockNumber)))
+	header, err := etherMan.GetHeaderInfoByNumber(ctx, big.NewInt(int64(rpc.LatestBlockNumber)))
 	if err != nil || header == nil {
 		return nil, err
 	}
-	headerHash, err := etherMan.GetRightBlockHashByNumber(ctx, big.NewInt(int64(rpc.LatestBlockNumber)))
-	if err != nil {
-		return nil, err
-	}
-	return HeaderWithHashFromHeaderAndHash(header, headerHash), nil
+	return header, nil
 }
 
 // GetLatestBlockNumber gets the latest block number from the ethereum
@@ -2139,39 +2127,152 @@ func toBlockNumArg(number *big.Int) string {
 	return fmt.Sprintf("<invalid %d>", number)
 }
 
-type BlockInfo struct {
-	ParentHash common.Hash `json:"parentHash"       gencodec:"required"`
-	Time       uint64      `json:"timestamp"        gencodec:"required"`
-	Hash       common.Hash `json:"hash"             gencodec:"required"`
+// HeaderWithHash is a composite type embedding *BlockWithHash and providing a custom hash field.
+type HeaderWithHash struct {
+	Time       uint64
+	ParentHash common.Hash
+	Number     *big.Int
+	hash       common.Hash
+}
+
+// HeaderWithHashFromHeader creates a HeaderWithHash from a *types.Header.
+func HeaderWithHashFromHeader(header *types.Header) *HeaderWithHash {
+	if header == nil {
+		return nil
+	}
+	return &HeaderWithHash{
+		hash:       header.Hash(),
+		ParentHash: header.ParentHash,
+		Time:       header.Time,
+		Number:     header.Number,
+	}
+}
+
+func (h *HeaderWithHash) NumberU64() uint64 {
+	if h.Number == nil {
+		return 0
+	}
+	return h.Number.Uint64()
+}
+
+// Hash returns the custom hash if set, otherwise falls back to the embedded Block's Hash method.
+func (h *HeaderWithHash) Hash() common.Hash {
+	return h.hash
+}
+
+// BlockWithHash is a composite type embedding *HeaderWithHash and providing methods to access block information.
+type BlockWithHash struct {
+	header *HeaderWithHash // Embedding HeaderWithHash to reuse its fields and methods
+}
+
+func (b *BlockWithHash) Hash() common.Hash {
+	return b.header.Hash()
+}
+
+func (b *BlockWithHash) Time() uint64 {
+	return b.header.Time
+}
+func (b *BlockWithHash) ParentHash() common.Hash {
+	return b.header.ParentHash
+}
+func (b *BlockWithHash) Number() *big.Int {
+	if b.header.Number == nil {
+		return nil
+	}
+	return new(big.Int).Set(b.header.Number)
+}
+
+func (b *BlockWithHash) NumberU64() uint64 {
+	return b.header.Number.Uint64()
+}
+
+func BlockWithHashFromBlock(block *types.Block) *BlockWithHash {
+	if block == nil {
+		return nil
+	}
+	return &BlockWithHash{
+		header: &HeaderWithHash{
+			Time:       block.Time(),
+			ParentHash: block.ParentHash(),
+			Number:     block.Number(),
+			hash:       block.Hash(),
+		},
+	}
+}
+
+func BlockWithHashFromBlockAndHash(block *types.Block, customHash common.Hash) *BlockWithHash {
+	if block == nil {
+		return nil
+	}
+	return &BlockWithHash{
+		header: &HeaderWithHash{
+			Time:       block.Time(),
+			ParentHash: block.ParentHash(),
+			Number:     block.Number(),
+			hash:       customHash,
+		},
+	}
 }
 
 type rpcBlockHeader struct {
 	ParentHash common.Hash `json:"parentHash"       gencodec:"required"`
 	Time       string      `json:"timestamp"        gencodec:"required"`
+	Number     string      `json:"number"           gencodec:"required"`
 }
 
 type rpcBlock struct {
 	Hash common.Hash `json:"hash"             gencodec:"required"`
 }
 
-func (etherMan *Client) GetRightBlockHashByNumber(ctx context.Context, blockNum *big.Int) (common.Hash, error) {
+func (etherMan *Client) GetHeaderInfoByNumber(ctx context.Context, blockNum *big.Int) (*HeaderWithHash, error) {
 	var raw json.RawMessage
 	err := etherMan.ethClientRPC.CallContext(ctx, &raw, "eth_getBlockByNumber", toBlockNumArg(blockNum), false)
 	if err != nil {
-		return common.Hash{}, err
+		return nil, err
+	}
+	var header rpcBlockHeader
+	if err := json.Unmarshal(raw, &header); err != nil {
+		return nil, err
+	}
+	if header.ParentHash == (common.Hash{}) {
+		return nil, fmt.Errorf("parent hash not found for block number %s", toBlockNumArg(blockNum))
+	}
+	if header.Time == "" {
+		return nil, fmt.Errorf("timestamp not found for block number %s", toBlockNumArg(blockNum))
 	}
 	var body rpcBlock
 	if err := json.Unmarshal(raw, &body); err != nil {
-		return common.Hash{}, err
+		return nil, err
 	}
 	if body.Hash == (common.Hash{}) {
-		return common.Hash{}, fmt.Errorf("block not found for number %s", toBlockNumArg(blockNum))
+		return nil, fmt.Errorf("block not found for number %s", toBlockNumArg(blockNum))
 	}
-	return body.Hash, nil
-
+	timeStamp, err := hexutil.DecodeUint64(header.Time)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode timestamp for block number %s: %w", toBlockNumArg(blockNum), err)
+	}
+	return &HeaderWithHash{
+		ParentHash: header.ParentHash,
+		Time:       timeStamp,
+		hash:       body.Hash,
+		Number:     new(big.Int).SetUint64(hexutil.MustDecodeUint64(header.Number)),
+	}, nil
 }
 
-func (etherMan *Client) GetBlockInfoByHash(ctx context.Context, blockHash common.Hash) (*BlockInfo, error) {
+func (etherMan *Client) GetBlockInfoByNumber(ctx context.Context, blockNum *big.Int) (*BlockWithHash, error) {
+	header, err := etherMan.GetHeaderInfoByNumber(ctx, blockNum)
+	if err != nil {
+		return nil, err
+	}
+	if header == nil {
+		return nil, fmt.Errorf("block not found for number %s", toBlockNumArg(blockNum))
+	}
+	return &BlockWithHash{
+		header: header,
+	}, nil
+}
+
+func (etherMan *Client) GetHeaderInfoByHash(ctx context.Context, blockHash common.Hash) (*HeaderWithHash, error) {
 	var raw json.RawMessage
 	err := etherMan.ethClientRPC.CallContext(ctx, &raw, "eth_getBlockByHash", blockHash, false)
 	if err != nil {
@@ -2198,78 +2299,23 @@ func (etherMan *Client) GetBlockInfoByHash(ctx context.Context, blockHash common
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode timestamp for block %s: %w", blockHash.String(), err)
 	}
-	return &BlockInfo{
+	return &HeaderWithHash{
 		ParentHash: header.ParentHash,
 		Time:       timeStamp,
-		Hash:       body.Hash,
+		hash:       body.Hash,
+		Number:     new(big.Int).SetUint64(hexutil.MustDecodeUint64(header.Number)),
 	}, nil
 }
 
-// BlockWithHash is a composite type embedding *types.Block and overriding the Hash method.
-type BlockWithHash struct {
-	*types.Block
-	CustomHash common.Hash
-}
-
-// Hash returns the custom hash if set, otherwise falls back to the embedded Block's Hash method.
-func (b *BlockWithHash) Hash() common.Hash {
-	if (b.CustomHash != common.Hash{}) {
-		return b.CustomHash
+func (etherMan *Client) GetBlockInfoByHash(ctx context.Context, blockHash common.Hash) (*BlockWithHash, error) {
+	header, err := etherMan.GetHeaderInfoByHash(ctx, blockHash)
+	if err != nil {
+		return nil, err
 	}
-	return b.Block.Hash()
-}
-
-func BlockWithHashFromBlock(block *types.Block) *BlockWithHash {
-	if block == nil {
-		return nil
+	if header == nil {
+		return nil, fmt.Errorf("block not found for hash %s", blockHash.String())
 	}
 	return &BlockWithHash{
-		Block:      block,
-		CustomHash: common.Hash{},
-	}
-}
-
-func BlockWithHashFromBlockAndHash(block *types.Block, customHash common.Hash) *BlockWithHash {
-	if block == nil {
-		return nil
-	}
-	return &BlockWithHash{
-		Block:      block,
-		CustomHash: customHash,
-	}
-}
-
-// HeaderWithHash is a composite type embedding *types.Header and overriding the Hash method.
-type HeaderWithHash struct {
-	*types.Header
-	CustomHash common.Hash
-}
-
-// Hash returns the custom hash if set, otherwise falls back to the embedded Header's Hash method.
-func (h *HeaderWithHash) Hash() common.Hash {
-	if (h.CustomHash != common.Hash{}) {
-		return h.CustomHash
-	}
-	return h.Header.Hash()
-}
-
-// HeaderWithHashFromHeader creates a HeaderWithHash from a *types.Header.
-func HeaderWithHashFromHeader(header *types.Header) *HeaderWithHash {
-	if header == nil {
-		return nil
-	}
-	return &HeaderWithHash{
-		Header:     header,
-		CustomHash: common.Hash{},
-	}
-}
-
-func HeaderWithHashFromHeaderAndHash(header *types.Header, customHash common.Hash) *HeaderWithHash {
-	if header == nil {
-		return nil
-	}
-	return &HeaderWithHash{
-		Header:     header,
-		CustomHash: customHash,
-	}
+		header: header,
+	}, nil
 }
